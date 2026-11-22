@@ -14,6 +14,28 @@ const CATEGORIES = {
   Other: { icon: "✦", color: "#9ba1b5" }
 };
 
+const KEYWORDS = {
+  Travel: ["travel", "trip", "uber", "ola", "taxi", "cab", "flight", "plane", "train", "metro", "bus", "fuel", "petrol", "diesel", "ticket", "toll", "auto", "commute", "fare"],
+  Food: ["lunch", "dinner", "breakfast", "food", "grocery", "groceries", "restaurant", "cafe", "coffee", "tea", "swiggy", "zomato", "snack", "snacks", "pizza", "burger", "meal", "supermarket", "bakery", "drinks", "starbucks"],
+  Shopping: ["shopping", "amazon", "flipkart", "myntra", "clothes", "clothing", "shoes", "shirt", "tshirt", "pants", "electronics", "gadget", "mall", "store", "apparel", "dress"],
+  Bills: ["bill", "bills", "electricity", "water", "wifi", "internet", "broadband", "recharge", "mobile", "phone", "rent", "maintenance", "gas", "utility", "dth", "subscription"],
+  Education: ["book", "books", "course", "tuition", "school", "college", "fees", "exam", "udemy", "coursera", "class", "study", "stationery"],
+  Health: ["medicine", "medicines", "doctor", "hospital", "clinic", "pharmacy", "medical", "gym", "fitness", "dentist", "pill", "pills", "health", "checkup"],
+  Entertainment: ["movie", "movies", "cinema", "netflix", "prime", "spotify", "hotstar", "concert", "game", "gaming", "steam", "theatre", "party", "club", "outing"]
+};
+
+function detectCategory(title) {
+  if (!title) return null;
+  const lower = title.toLowerCase();
+  for (const [cat, words] of Object.entries(KEYWORDS)) {
+    for (const w of words) {
+      const regex = new RegExp(`\\b${w}\\b`, "i");
+      if (regex.test(lower)) return cat;
+    }
+  }
+  return null;
+}
+
 const $ = id => document.getElementById(id);
 
 // Currency formatting with mandatory 2 decimal places to match ₹0.00 and ₹10,000.00
@@ -76,6 +98,20 @@ function safe(s) {
 }
 
 function init() {
+  // Auto-migrate any previously mis-categorized expenses based on explicit keywords
+  let migrated = false;
+  expenses = expenses.map(e => {
+    if (!e.category || e.category === "Food") {
+      const detected = detectCategory(e.title);
+      if (detected && detected !== "Food") {
+        migrated = true;
+        return { ...e, category: detected };
+      }
+    }
+    return e;
+  });
+  if (migrated) save();
+
   // Topbar and welcome dates
   const dayStr = today.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
   $("todayLabel").textContent = dayStr;
@@ -84,8 +120,9 @@ function init() {
   $("monthLabel").textContent = monthStr;
   
   $("expenseDate").value = dateISO(today);
-  $("expenseCategory").innerHTML = Object.keys(CATEGORIES).map(c => `<option>${c}</option>`).join("");
-  $("categoryFilter").innerHTML = '<option value="">All categories</option>' + Object.keys(CATEGORIES).map(c => `<option>${c}</option>`).join("");
+  const catOptions = Object.keys(CATEGORIES).map(c => `<option value="${c}">${CATEGORIES[c].icon} ${c}</option>`).join("");
+  $("expenseCategory").innerHTML = catOptions;
+  $("categoryFilter").innerHTML = '<option value="">All categories</option>' + catOptions;
   $("budgetInput").value = budget;
   
   // Enforce dark mode by default unless user explicitly chose light
@@ -234,14 +271,18 @@ function renderRows(target, items) {
     return `<tr>
       <td>
         <div class="desc-cell">
-          <span class="category-icon">${c.icon}</span>
+          <span class="category-icon" style="background:${c.color}22;color:${c.color}">${c.icon}</span>
           <span>
             ${safe(e.title)}
             ${e.note ? `<small style="display:block;color:var(--muted);font-weight:400;margin-top:3px">${safe(e.note)}</small>` : ""}
           </span>
         </div>
       </td>
-      <td><span class="category-tag">${safe(e.category)}</span></td>
+      <td>
+        <span class="category-tag" style="color:${c.color};border-color:${c.color}35;background:${c.color}18" title="Category: ${safe(e.category)}">
+          ${c.icon} ${safe(e.category)}
+        </span>
+      </td>
       <td>${prettyDate(e.date)}</td>
       <td class="amount-cell">${money(e.amount)}</td>
       <td class="actions-cell">
@@ -264,12 +305,14 @@ function renderFilters() {
 
 function filterRows() {
   const q = $("searchInput").value.trim().toLowerCase();
-  const cat = $("categoryFilter").value;
+  const cat = ($("categoryFilter").value || "").trim().toLowerCase();
   const month = $("monthFilter").value;
   const filtered = expenses.filter(e => {
-    return (!q || (e.title + " " + (e.note || "") + " " + e.category).toLowerCase().includes(q))
-      && (!cat || e.category === cat)
-      && (!month || monthKey(e.date) === month);
+    const eCat = (e.category || "").trim().toLowerCase();
+    const matchCat = !cat || eCat === cat;
+    const matchMonth = !month || monthKey(e.date) === month;
+    const matchQ = !q || (e.title + " " + (e.note || "") + " " + e.category).toLowerCase().includes(q);
+    return matchCat && matchMonth && matchQ;
   }).sort((a, b) => b.date.localeCompare(a.date));
 
   renderRows("allRows", filtered);
@@ -306,13 +349,33 @@ function renderAnalytics(month) {
 function openModal(id) { $(id).classList.add("open"); }
 function closeModal(id) { $(id).classList.remove("open"); }
 
+let userSelectedCategory = false;
+
 function resetExpenseForm() {
   editingId = null;
+  userSelectedCategory = false;
   $("expenseForm").reset();
+  $("expenseCategory").value = "Food";
   $("expenseDate").value = dateISO(today);
   $("modalTitle").textContent = "Add an expense";
   $("saveExpense").textContent = "Save expense";
 }
+
+$("expenseCategory").addEventListener("change", () => {
+  userSelectedCategory = true;
+});
+$("expenseCategory").addEventListener("input", () => {
+  userSelectedCategory = true;
+});
+
+$("expenseTitle").addEventListener("input", e => {
+  if (!userSelectedCategory) {
+    const detected = detectCategory(e.target.value);
+    if (detected && CATEGORIES[detected]) {
+      $("expenseCategory").value = detected;
+    }
+  }
+});
 
 $("openAdd").addEventListener("click", () => { resetExpenseForm(); openModal("expenseModal"); });
 $("emptyAdd").addEventListener("click", () => { resetExpenseForm(); openModal("expenseModal"); });
@@ -359,9 +422,10 @@ document.addEventListener("click", e => {
     const item = expenses.find(x => x.id === edit.dataset.edit);
     if (!item) return;
     editingId = item.id;
+    userSelectedCategory = true;
     $("expenseTitle").value = item.title;
     $("expenseAmount").value = item.amount;
-    $("expenseCategory").value = item.category;
+    $("expenseCategory").value = CATEGORIES[item.category] ? item.category : "Other";
     $("expenseDate").value = item.date;
     $("expenseNote").value = item.note || "";
     $("modalTitle").textContent = "Edit expense";
@@ -381,7 +445,10 @@ document.addEventListener("click", e => {
 
 ["searchInput", "categoryFilter", "monthFilter"].forEach(id => {
   const el = $(id);
-  if (el) el.addEventListener(id === "searchInput" ? "input" : "change", filterRows);
+  if (el) {
+    el.addEventListener("input", filterRows);
+    el.addEventListener("change", filterRows);
+  }
 });
 
 $("editBudget").addEventListener("click", () => openModal("budgetModal"));
