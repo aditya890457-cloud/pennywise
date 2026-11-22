@@ -1,0 +1,340 @@
+/* enhancements.css — Floo Login Portal & Visual Accents */
+
+#loginPage {
+  display: none;
+  min-height: calc(100vh - 120px);
+  align-items: center;
+  justify-content: center;
+}
+
+#loginPage.active-page {
+  display: flex;
+}
+
+.floo-modal-container {
+  --tx: 0px;
+  --ty: 0px;
+  position: relative;
+  width: 100%;
+  max-width: 440px;
+  min-height: 600px;
+  background: #0d0f19;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 28px;
+  overflow: hidden;
+  padding: 36px 32px;
+  box-shadow: 0 24px 60px -10px rgba(0, 0, 0, 0.6), 0 0 40px rgba(124, 106, 237, 0.12);
+  display: flex;
+  flex-direction: column;
+  color: #f3f4f8;
+  transform: translate3d(var(--tx), var(--ty), 0);
+  transition: box-shadow 0.4s ease, border-color 0.4s ease;
+}
+
+.floo-modal-container.is-hovering {
+  border-color: rgba(140, 122, 241, 0.35);
+  box-shadow: 0 30px 80px -10px rgba(0, 0, 0, 0.7), 0 0 60px rgba(140, 122, 241, 0.25);
+}
+
+.floo-defs {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+/* Background Animated Cosmic Rings & Glow */
+.floo-modal-container .glow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 320px;
+  height: 320px;
+  background: radial-gradient(circle, rgba(124, 106, 237, 0.32) 0%, rgba(2, 238, 255, 0.15) 40%, transparent 70%);
+  filter: blur(50px);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.floo-modal-container .rings {
+  position: absolute;
+  top: -240px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 900px;
+  height: 900px;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0.75;
+}
+
+.floo-modal-container .rings circle.base {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.04);
+  stroke-width: 1;
+}
+
+.floo-modal-container .rings circle.wave {
+  fill: none;
+  stroke: rgba(124, 106, 237, 0.25);
+  stroke-width: 1.5;
+  animation: flooPulse 4s infinite cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floo-modal-container .rings circle.wave-b {
+  animation-delay: 2s;
+}
+
+@keyframes flooPulse {
+  0% { transform: scale(0.9); opacity: 0.8; transform-origin: center; }
+  50% { opacity: 0.3; }
+  100% { transform: scale(1.4); opacity: 0; transform-origin: center; }
+}
+
+.floo-modal-container .rings circle.arc {
+  fill: none;
+  stroke: url(#floo-arc-gradient);
+  stroke-width: 2;
+  stroke-linecap: round;
+  animation: flooSpin var(--duration, 40s) linear infinite;
+  transform-origin: 1000px 1000px;
+}
+
+.floo-modal-container .rings circle.arc.reverse {
+  animation-direction: reverse;
+}
+
+@keyframes flooSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Header inside Floo Portal */
+.floo-top {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.floo-brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-family: var(--font-heading);
+  font-weight: 800;
+  font-size: 14px;
+  color: #fff;
+}
+
+.floo-join button {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: #9ba1b5;
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.floo-join button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+/* Form Column */
+.floo-col {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  flex: 1;
+}
+
+.floo-mark {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+}
+
+.floo-col h1 {
+  font-family: var(--font-heading);
+  font-size: 24px;
+  font-weight: 800;
+  color: #ffffff;
+  margin-bottom: 4px;
+  letter-spacing: -0.02em;
+}
+
+.floo-sub {
+  font-size: 13px;
+  color: #9ba1b5;
+  margin-bottom: 22px;
+}
+
+/* Form Fields */
+.floo-form {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.floo-field {
+  position: relative;
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  padding: 10px 14px;
+  transition: all 0.2s ease;
+}
+
+.floo-field:focus-within {
+  border-color: #8c7af1;
+  background: rgba(255, 255, 255, 0.07);
+  box-shadow: 0 0 0 3px rgba(140, 122, 241, 0.25);
+}
+
+.floo-ic {
+  width: 18px;
+  height: 18px;
+  color: #9ba1b5;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+
+.floo-field input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: #ffffff;
+  font-size: 13.5px;
+  outline: none;
+}
+
+.floo-field input::placeholder {
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.floo-forgot {
+  align-self: flex-end;
+  font-size: 12px;
+  color: #8c7af1;
+  cursor: pointer;
+  margin-top: -4px;
+  margin-bottom: 6px;
+  transition: opacity 0.15s ease;
+}
+
+.floo-forgot:hover {
+  text-decoration: underline;
+}
+
+.floo-primary {
+  width: 100%;
+  background: linear-gradient(135deg, #7c6aed, #5a46d1);
+  color: #ffffff;
+  border: none;
+  border-radius: 12px;
+  padding: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  box-shadow: 0 4px 16px rgba(124, 106, 237, 0.35);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.floo-primary svg {
+  width: 16px;
+  height: 16px;
+  transition: transform 0.2s ease;
+}
+
+.floo-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px rgba(124, 106, 237, 0.45);
+}
+
+.floo-primary:hover svg {
+  transform: translateX(3px);
+}
+
+.floo-or {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  margin: 16px 0;
+  font-size: 12px;
+  color: #6c718a;
+}
+
+.floo-or i {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.floo-soc {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 12px;
+  padding: 10px;
+  color: #e2e4ee;
+  font-size: 13px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 8px;
+  transition: all 0.15s ease;
+}
+
+.floo-soc svg {
+  width: 18px;
+  height: 18px;
+}
+
+.floo-soc:hover {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: rgba(255, 255, 255, 0.18);
+  color: #fff;
+}
+
+.floo-foot {
+  position: relative;
+  z-index: 10;
+  margin-top: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: #6c718a;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+  padding-top: 14px;
+}
+
+.floo-foot nav a {
+  color: #8c7af1;
+  text-decoration: none;
+  margin-left: 10px;
+}
+
+.floo-foot nav a:hover {
+  text-decoration: underline;
+}
