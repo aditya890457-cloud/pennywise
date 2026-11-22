@@ -520,7 +520,7 @@ h2 {
 }
 
 /* ==========================================================================
-   Stats Grid & Hero Card
+   Stats Grid & Interactive Cards
    ========================================================================== */
 .stats-grid {
   display: grid;
@@ -537,58 +537,36 @@ h2 {
   box-shadow: var(--card-shadow);
   display: flex;
   flex-direction: column;
-  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  z-index: 1;
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.28s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Smooth background gradient transition for ALL stat cards on hover */
+.stat-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(135deg, #8170f8 0%, #6854e6 55%, #563fd4 100%);
+  opacity: 0;
+  transition: opacity 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+  z-index: -1;
+  pointer-events: none;
 }
 
 .stat-card:hover {
-  transform: translateY(-3px);
-  border-color: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 10px 28px -4px rgba(0, 0, 0, 0.5);
+  transform: translateY(-4px);
+  border-color: rgba(255, 255, 255, 0.28);
+  box-shadow: 0 16px 38px -4px rgba(108, 92, 231, 0.55);
 }
 
-/* Hero Gradient Stat Card */
-.hero-stat {
-  background: linear-gradient(135deg, #8170f8 0%, #6854e6 55%, #563fd4 100%);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 12px 32px -4px rgba(108, 92, 231, 0.5);
-}
-
-.hero-stat:hover {
-  transform: translateY(-3px);
-  box-shadow: 0 16px 38px -4px rgba(108, 92, 231, 0.65);
-  border-color: rgba(255, 255, 255, 0.3);
-}
-
-.hero-stat .stat-top {
-  color: rgba(255, 255, 255, 0.9);
-}
-
-.hero-stat .stat-value {
-  color: #ffffff;
-}
-
-.hero-stat .stat-foot {
-  color: rgba(255, 255, 255, 0.8);
-}
-
-.hero-icon {
-  background: #ffffff !important;
-  color: #604be2 !important;
-  font-weight: 800;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-  transition: transform 0.2s ease;
-}
-
-.hero-stat:hover .hero-icon {
-  transform: translate(2px, -2px) scale(1.05);
-}
-
-.hero-dot {
-  background: #ffffff !important;
-  box-shadow: 0 0 6px rgba(255, 255, 255, 0.8);
+.stat-card:hover::before {
+  opacity: 1;
 }
 
 .stat-top {
@@ -599,6 +577,11 @@ h2 {
   font-weight: 600;
   color: var(--muted);
   margin-bottom: 14px;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover .stat-top {
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .stat-icon {
@@ -609,16 +592,21 @@ h2 {
   align-items: center;
   justify-content: center;
   font-size: 14px;
-  transition: transform 0.2s ease;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
-.stat-card:hover .stat-icon {
-  transform: scale(1.1);
-}
-
+.stat-icon.purple,
 .stat-icon.lilac { background: rgba(139, 120, 237, 0.16); color: #9d8ef9; }
 .stat-icon.peach { background: rgba(240, 163, 108, 0.16); color: #f0a36c; }
-.stat-icon.mint { background: rgba(98, 183, 160, 0.16); color: #62b7a0; }
+.stat-icon.mint  { background: rgba(98, 183, 160, 0.16); color: #62b7a0; }
+
+.stat-card:hover .stat-icon {
+  background: #ffffff !important;
+  color: #5c47e2 !important;
+  font-weight: 800;
+  transform: translate(2px, -2px) scale(1.08);
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+}
 
 .stat-value {
   font-family: var(--font-heading);
@@ -627,6 +615,12 @@ h2 {
   color: #ffffff;
   margin-bottom: 12px;
   letter-spacing: -0.02em;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1), text-shadow 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover .stat-value {
+  color: #ffffff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
 }
 
 .stat-value.smaller {
@@ -640,6 +634,11 @@ h2 {
   align-items: center;
   gap: 7px;
   margin-top: auto;
+  transition: color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stat-card:hover .stat-foot {
+  color: rgba(255, 255, 255, 0.88);
 }
 
 .dot {
@@ -647,11 +646,32 @@ h2 {
   height: 6px;
   border-radius: 50%;
   display: inline-block;
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.purple-dot {
+  background: #8c7af1;
+  box-shadow: 0 0 6px rgba(140, 122, 241, 0.5);
 }
 
 .green-dot {
   background: #10b981;
   box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+}
+
+.peach-dot {
+  background: #f0a36c;
+  box-shadow: 0 0 6px rgba(240, 163, 108, 0.5);
+}
+
+.mint-dot {
+  background: #62b7a0;
+  box-shadow: 0 0 6px rgba(98, 183, 160, 0.5);
+}
+
+.stat-card:hover .dot {
+  background: #ffffff !important;
+  box-shadow: 0 0 8px rgba(255, 255, 255, 0.95) !important;
 }
 
 /* ==========================================================================
