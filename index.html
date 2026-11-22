@@ -3,25 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="A personal expense tracker dashboard." />
+  <meta name="description" content="Pennywise — Personal expense tracker dashboard." />
   <title>Pennywise — Expense Tracker</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="style.css" />
   <link rel="stylesheet" href="enhancements.css" />
 </head>
-<body>
+<body class="dark">
   <div class="app-shell">
     <aside class="sidebar" id="sidebar">
       <a class="brand" href="#"><span class="brand-mark">p.</span><span>Pennywise</span></a>
+      
       <div class="side-label">WORKSPACE</div>
       <button class="nav-item active" data-view="dashboard"><span>▦</span> Dashboard</button>
       <button class="nav-item" data-view="transactions"><span>↕</span> Transactions</button>
       <button class="nav-item" data-view="analytics"><span>◔</span> Analytics</button>
+      
       <div class="side-label side-label-spaced">MANAGE</div>
       <button class="nav-item" id="budgetNav"><span>◎</span> Monthly budget</button>
-      <button class="nav-item" data-view="login" id="loginNav"><span>⎆</span> Account Login</button>
+      
       <div class="sidebar-bottom">
         <div class="help-card">
           <div class="help-icon">✦</div>
@@ -40,54 +42,213 @@
       <header class="topbar">
         <button class="mobile-menu" id="mobileMenu" aria-label="Open menu">☰</button>
         <div class="breadcrumb">Workspace <span>/</span> <strong id="pageName">Dashboard</strong></div>
-        <div class="top-actions"><span class="today" id="todayLabel"></span><button class="primary-btn" id="openAdd">＋ Add expense</button></div>
+        <div class="top-actions">
+          <span class="today" id="todayLabel">Sun, 22 Nov</span>
+          <button class="primary-btn" id="openAdd">＋ Add expense</button>
+        </div>
       </header>
 
       <section class="page active-page" id="dashboardPage">
         <div class="welcome-row">
-          <div><p class="eyebrow">YOUR FINANCIAL OVERVIEW</p><h1>Good day! <span>✦</span></h1><p class="muted">Here's what's happening with your money.</p></div>
-          <div class="month-chip">◷ <span id="monthLabel"></span></div>
+          <div>
+            <p class="eyebrow">YOUR FINANCIAL OVERVIEW</p>
+            <h1>Good day! <span class="sparkle">✦</span></h1>
+            <p class="muted">Here's what's happening with your money.</p>
+          </div>
+          <div class="month-chip"><span class="chip-clock">◷</span> <span id="monthLabel">November 2026</span></div>
         </div>
+
         <div class="stats-grid">
-          <article class="stat-card dark-stat"><div class="stat-top"><span>Total expenses</span><span class="stat-icon">↗</span></div><div class="stat-value" id="totalSpent">₹0</div><div class="stat-foot"><span class="dot light-dot"></span> All recorded expenses</div></article>
-          <article class="stat-card"><div class="stat-top"><span>This month</span><span class="stat-icon lilac">▣</span></div><div class="stat-value" id="monthSpent">₹0</div><div class="stat-foot"><span class="positive">●</span> Current month spending</div></article>
-          <article class="stat-card"><div class="stat-top"><span>Transactions</span><span class="stat-icon peach">↕</span></div><div class="stat-value" id="transactionCount">0</div><div class="stat-foot">All expenses added</div></article>
-          <article class="stat-card"><div class="stat-top"><span>Daily average</span><span class="stat-icon mint">⌁</span></div><div class="stat-value" id="dailyAverage">₹0</div><div class="stat-foot">Based on this month</div></article>
+          <article class="stat-card hero-stat">
+            <div class="stat-top">
+              <span>Total expenses</span>
+              <span class="stat-icon hero-icon">↗</span>
+            </div>
+            <div class="stat-value" id="totalSpent">₹0.00</div>
+            <div class="stat-foot"><span class="dot hero-dot"></span> All recorded expenses</div>
+          </article>
+          
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>This month</span>
+              <span class="stat-icon lilac">▣</span>
+            </div>
+            <div class="stat-value" id="monthSpent">₹0.00</div>
+            <div class="stat-foot"><span class="dot green-dot"></span> Current month spending</div>
+          </article>
+          
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Transactions</span>
+              <span class="stat-icon peach">↕</span>
+            </div>
+            <div class="stat-value" id="transactionCount">0</div>
+            <div class="stat-foot">All expenses added</div>
+          </article>
+          
+          <article class="stat-card">
+            <div class="stat-top">
+              <span>Daily average</span>
+              <span class="stat-icon mint">⌁</span>
+            </div>
+            <div class="stat-value" id="dailyAverage">₹0.00</div>
+            <div class="stat-foot">Based on this month</div>
+          </article>
         </div>
+
         <div class="content-grid">
           <article class="panel spending-panel">
-            <div class="panel-heading"><div><h2>Spending overview</h2><p class="muted">Your expenses by category</p></div><span class="tiny-pill">This month</span></div>
-            <div class="chart-area"><canvas id="donutChart" width="240" height="240" aria-label="Spending by category chart"></canvas><div class="chart-center"><strong id="chartTotal">₹0</strong><span>Total spent</span></div></div>
+            <div class="panel-heading">
+              <div>
+                <h2>Spending overview</h2>
+                <p class="muted">Your expenses by category</p>
+              </div>
+              <span class="tiny-pill">This month</span>
+            </div>
+            <div class="chart-area">
+              <canvas id="donutChart" width="240" height="240" aria-label="Spending by category chart"></canvas>
+              <div class="chart-center">
+                <strong id="chartTotal">₹0.00</strong>
+                <span>Total spent</span>
+              </div>
+            </div>
+            <div class="chart-empty-hint" id="chartEmptyHint">Add expenses to see your breakdown</div>
             <div class="legend" id="categoryLegend"></div>
           </article>
+
           <article class="panel budget-panel">
-            <div class="panel-heading"><div><h2>Monthly budget</h2><p class="muted">Stay on top of your goals</p></div><button class="text-btn" id="editBudget">Edit ↗</button></div>
-            <div class="budget-amount"><strong id="budgetSpent">₹0</strong><span>of <b id="budgetLimit">₹10,000</b></span></div>
-            <div class="progress-track"><div class="progress-fill" id="budgetProgress"></div></div>
-            <div class="budget-foot"><span id="budgetRemaining">₹10,000 remaining</span><span id="budgetPercent">0%</span></div>
-            <div class="budget-tip"><span>✦</span><p id="budgetMessage">Set a budget and track your progress throughout the month.</p></div>
+            <div class="panel-heading">
+              <div>
+                <h2>Monthly budget</h2>
+                <p class="muted">Stay on top of your goals</p>
+              </div>
+              <button class="text-btn" id="editBudget">Edit ↗</button>
+            </div>
+            <div class="budget-amount">
+              <strong id="budgetSpent">₹0.00</strong>
+              <span>of <b id="budgetLimit">₹10,000.00</b></span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" id="budgetProgress"></div>
+            </div>
+            <div class="budget-foot">
+              <span id="budgetRemaining">₹10,000.00 remaining</span>
+              <span id="budgetPercent">0%</span>
+            </div>
+            <div class="budget-tip">
+              <span class="tip-star">✦</span>
+              <p id="budgetMessage">You're doing well. Keep tracking your spending consistently.</p>
+            </div>
           </article>
         </div>
+
         <article class="panel transactions-panel">
-          <div class="panel-heading"><div><h2>Recent transactions</h2><p class="muted">Your latest money activity</p></div><button class="text-btn" data-go="transactions">View all →</button></div>
-          <div class="table-wrap"><table><thead><tr><th>DESCRIPTION</th><th>CATEGORY</th><th>DATE</th><th class="amount-cell">AMOUNT</th><th></th></tr></thead><tbody id="recentRows"></tbody></table></div>
-          <div class="empty-state" id="recentEmpty"><div>✧</div><strong>No expenses yet</strong><p>Add your first expense to see it here.</p><button class="primary-btn" id="emptyAdd">＋ Add your first expense</button></div>
+          <div class="panel-heading">
+            <div>
+              <h2>Recent transactions</h2>
+              <p class="muted">Your latest money activity</p>
+            </div>
+            <button class="text-btn" data-go="transactions">View all →</button>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DESCRIPTION</th>
+                  <th>CATEGORY</th>
+                  <th>DATE</th>
+                  <th class="amount-cell">AMOUNT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="recentRows"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="recentEmpty">
+            <div>✧</div>
+            <strong>No expenses yet</strong>
+            <p>Add your first expense to see it here.</p>
+            <button class="primary-btn" id="emptyAdd">＋ Add your first expense</button>
+          </div>
         </article>
       </section>
 
       <section class="page" id="transactionsPage">
-        <div class="page-title-row"><div><p class="eyebrow">YOUR MONEY, ORGANIZED</p><h1>Transactions</h1><p class="muted">Search, filter and manage all your expenses.</p></div><button class="outline-btn" id="exportCsv">↓ Export CSV</button></div>
+        <div class="page-title-row">
+          <div>
+            <p class="eyebrow">YOUR MONEY, ORGANIZED</p>
+            <h1>Transactions</h1>
+            <p class="muted">Search, filter and manage all your expenses.</p>
+          </div>
+          <button class="outline-btn" id="exportCsv">↓ Export CSV</button>
+        </div>
         <article class="panel all-transactions">
-          <div class="filters"><input id="searchInput" type="search" placeholder="⌕  Search expenses..." /><select id="categoryFilter"><option value="">All categories</option></select><select id="monthFilter"><option value="">All dates</option></select></div>
-          <div class="table-wrap"><table><thead><tr><th>DESCRIPTION</th><th>CATEGORY</th><th>DATE</th><th class="amount-cell">AMOUNT</th><th></th></tr></thead><tbody id="allRows"></tbody></table></div>
-          <div class="empty-state" id="allEmpty"><div>⌕</div><strong>No matching transactions</strong><p>Try changing your search or filters.</p></div>
+          <div class="filters">
+            <input id="searchInput" type="search" placeholder="⌕  Search expenses..." />
+            <select id="categoryFilter"><option value="">All categories</option></select>
+            <select id="monthFilter"><option value="">All dates</option></select>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>DESCRIPTION</th>
+                  <th>CATEGORY</th>
+                  <th>DATE</th>
+                  <th class="amount-cell">AMOUNT</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody id="allRows"></tbody>
+            </table>
+          </div>
+          <div class="empty-state" id="allEmpty">
+            <div>⌕</div>
+            <strong>No matching transactions</strong>
+            <p>Try changing your search or filters.</p>
+          </div>
         </article>
       </section>
 
       <section class="page" id="analyticsPage">
-        <div class="page-title-row"><div><p class="eyebrow">UNDERSTAND YOUR HABITS</p><h1>Analytics</h1><p class="muted">A clearer picture of where your money goes.</p></div></div>
-        <div class="stats-grid analytics-stats"><article class="stat-card"><div class="stat-top"><span>Highest category</span><span class="stat-icon lilac">★</span></div><div class="stat-value smaller" id="topCategory">—</div><div class="stat-foot">By total amount</div></article><article class="stat-card"><div class="stat-top"><span>Largest expense</span><span class="stat-icon peach">↗</span></div><div class="stat-value" id="largestExpense">₹0</div><div class="stat-foot" id="largestTitle">No expenses yet</div></article><article class="stat-card"><div class="stat-top"><span>Average transaction</span><span class="stat-icon mint">∿</span></div><div class="stat-value" id="averageExpense">₹0</div><div class="stat-foot">Across all records</div></article><article class="stat-card"><div class="stat-top"><span>Categories used</span><span class="stat-icon lilac">▦</span></div><div class="stat-value" id="categoriesUsed">0</div><div class="stat-foot">Different categories</div></article></div>
-        <article class="panel analytics-panel"><div class="panel-heading"><div><h2>Category breakdown</h2><p class="muted">Current month spending distribution</p></div></div><div id="breakdownList" class="breakdown-list"></div></article>
+        <div class="page-title-row">
+          <div>
+            <p class="eyebrow">UNDERSTAND YOUR HABITS</p>
+            <h1>Analytics</h1>
+            <p class="muted">A clearer picture of where your money goes.</p>
+          </div>
+        </div>
+        <div class="stats-grid analytics-stats">
+          <article class="stat-card">
+            <div class="stat-top"><span>Highest category</span><span class="stat-icon lilac">★</span></div>
+            <div class="stat-value smaller" id="topCategory">—</div>
+            <div class="stat-foot">By total amount</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Largest expense</span><span class="stat-icon peach">↗</span></div>
+            <div class="stat-value" id="largestExpense">₹0.00</div>
+            <div class="stat-foot" id="largestTitle">No expenses yet</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Average transaction</span><span class="stat-icon mint">∿</span></div>
+            <div class="stat-value" id="averageExpense">₹0.00</div>
+            <div class="stat-foot">Across all records</div>
+          </article>
+          <article class="stat-card">
+            <div class="stat-top"><span>Categories used</span><span class="stat-icon lilac">▦</span></div>
+            <div class="stat-value" id="categoriesUsed">0</div>
+            <div class="stat-foot">Different categories</div>
+          </article>
+        </div>
+        <article class="panel analytics-panel">
+          <div class="panel-heading">
+            <div>
+              <h2>Category breakdown</h2>
+              <p class="muted">Current month spending distribution</p>
+            </div>
+          </div>
+          <div id="breakdownList" class="breakdown-list"></div>
+        </article>
       </section>
 
       <section class="page" id="loginPage">
@@ -182,18 +343,38 @@
 
   <div class="modal-backdrop" id="expenseModal">
     <form class="modal" id="expenseForm">
-      <div class="modal-heading"><div><p class="eyebrow">KEEP TRACK OF IT</p><h2 id="modalTitle">Add an expense</h2></div><button type="button" class="close-btn" data-close="expenseModal">×</button></div>
+      <div class="modal-heading">
+        <div><p class="eyebrow">KEEP TRACK OF IT</p><h2 id="modalTitle">Add an expense</h2></div>
+        <button type="button" class="close-btn" data-close="expenseModal">×</button>
+      </div>
       <label>Expense title<input id="expenseTitle" maxlength="45" placeholder="e.g. Lunch with friends" required /></label>
-      <div class="form-row"><label>Amount (₹)<input id="expenseAmount" type="number" min="1" step="0.01" placeholder="0.00" required /></label><label>Category<select id="expenseCategory" required></select></label></div>
+      <div class="form-row">
+        <label>Amount (₹)<input id="expenseAmount" type="number" min="0.01" step="0.01" placeholder="0.00" required /></label>
+        <label>Category<select id="expenseCategory" required></select></label>
+      </div>
       <label>Date<input id="expenseDate" type="date" required /></label>
       <label>Note <span class="optional">(optional)</span><textarea id="expenseNote" rows="2" maxlength="120" placeholder="Add a short note..."></textarea></label>
-      <div class="modal-actions"><button type="button" class="outline-btn" data-close="expenseModal">Cancel</button><button class="primary-btn" type="submit" id="saveExpense">Save expense</button></div>
+      <div class="modal-actions">
+        <button type="button" class="outline-btn" data-close="expenseModal">Cancel</button>
+        <button class="primary-btn" type="submit" id="saveExpense">Save expense</button>
+      </div>
     </form>
   </div>
 
   <div class="modal-backdrop" id="budgetModal">
-    <form class="modal small-modal" id="budgetForm"><div class="modal-heading"><div><p class="eyebrow">YOUR MONTHLY GOAL</p><h2>Set your budget</h2></div><button type="button" class="close-btn" data-close="budgetModal">×</button></div><label>Monthly budget (₹)<input id="budgetInput" type="number" min="1" step="1" required /></label><div class="modal-actions"><button type="button" class="outline-btn" data-close="budgetModal">Cancel</button><button class="primary-btn">Save budget</button></div></form>
+    <form class="modal small-modal" id="budgetForm">
+      <div class="modal-heading">
+        <div><p class="eyebrow">YOUR MONTHLY GOAL</p><h2>Set your budget</h2></div>
+        <button type="button" class="close-btn" data-close="budgetModal">×</button>
+      </div>
+      <label>Monthly budget (₹)<input id="budgetInput" type="number" min="1" step="1" required /></label>
+      <div class="modal-actions">
+        <button type="button" class="outline-btn" data-close="budgetModal">Cancel</button>
+        <button class="primary-btn" type="submit">Save budget</button>
+      </div>
+    </form>
   </div>
+
   <div class="toast" id="toast" role="status"></div>
   <script src="app.js"></script>
 </body>
