@@ -699,14 +699,15 @@ h2 {
 .spending-panel {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
 }
 
 .chart-area {
   position: relative;
-  width: 210px;
-  height: 210px;
+  width: 236px;
+  height: 236px;
   max-width: 100%;
-  margin: 6px auto 0;
+  margin: 4px auto 0;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -715,8 +716,8 @@ h2 {
 
 .chart-area canvas,
 #donutChart {
-  width: 210px !important;
-  height: 210px !important;
+  width: 236px !important;
+  height: 236px !important;
   max-width: 100%;
   max-height: 100%;
   display: block;
@@ -750,7 +751,7 @@ h2 {
   display: block;
   font-size: 12px;
   color: #8287a1;
-  margin-top: 4px;
+  margin-top: 5px;
   font-weight: 500;
 }
 
@@ -758,30 +759,43 @@ h2 {
   text-align: center;
   font-size: 13px;
   color: #8287a1;
-  margin-top: 16px;
+  margin-top: 14px;
   margin-bottom: 2px;
 }
 
 .legend {
   display: none;
   flex-wrap: wrap;
-  gap: 12px;
+  gap: 8px 12px;
   justify-content: center;
-  padding: 14px 8px 0;
+  padding: 10px 4px 0;
+  margin-top: 8px;
 }
 
 .legend-item {
   display: inline-flex;
   align-items: center;
-  gap: 6px;
+  gap: 7px;
   font-size: 12px;
-  color: var(--muted);
+  font-weight: 500;
+  color: #8c92ac;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  padding: 4px 10px;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.legend-item:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: #ffffff;
 }
 
 .legend-dot {
   width: 8px;
   height: 8px;
   border-radius: 50%;
+  flex-shrink: 0;
 }
 
 /* Monthly Budget */

@@ -142,9 +142,9 @@ function renderDonut(items) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const size = 210;
+  const size = 236;
   
-  // Set buffer size multiplied by DPR for ultra-sharp Retina rendering
+  // Set buffer resolution multiplied by DPR for ultra-sharp Retina rendering
   canvas.width = size * dpr;
   canvas.height = size * dpr;
   // Explicitly constrain element style dimensions in CSS pixels to prevent DPR expansion
@@ -155,8 +155,15 @@ function renderDonut(items) {
   ctx.clearRect(0, 0, size, size);
 
   const center = size / 2;
-  const radius = 70;
-  const lineWidth = 22;
+  const radius = 82;
+  const lineWidth = 24;
+
+  // 1. Always draw the full 360-degree background ring track
+  ctx.beginPath();
+  ctx.arc(center, center, radius, 0, Math.PI * 2);
+  ctx.strokeStyle = "#23263b";
+  ctx.lineWidth = lineWidth;
+  ctx.stroke();
 
   const sums = {};
   items.forEach(e => { sums[e.category] = (sums[e.category] || 0) + Number(e.amount); });
@@ -167,28 +174,29 @@ function renderDonut(items) {
   const legend = $("categoryLegend");
 
   if (!sum) {
-    // Sleek dark circular track for empty state exactly matching reference screenshot
-    ctx.beginPath();
-    ctx.arc(center, center, radius, 0, Math.PI * 2);
-    ctx.strokeStyle = "#23263b";
-    ctx.lineWidth = lineWidth;
-    ctx.stroke();
-
     if (emptyHint) emptyHint.style.display = "block";
     if (legend) {
       legend.style.display = "none";
       legend.innerHTML = "";
     }
   } else {
+    // Fill the donut according to recorded expenses relative to monthly budget!
+    const targetBudget = budget > 0 ? budget : sum;
+    const fillFraction = Math.min(1, sum / targetBudget);
+    const totalFilledAngle = fillFraction * Math.PI * 2;
+
     let start = -Math.PI / 2;
     entries.forEach(([cat, val]) => {
-      const end = start + (val / sum) * Math.PI * 2;
+      const catAngle = (val / sum) * totalFilledAngle;
+      const end = start + catAngle;
+
       ctx.beginPath();
       ctx.arc(center, center, radius, start, end);
-      ctx.strokeStyle = (CATEGORIES[cat] && CATEGORIES[cat].color) || "#9ba1b5";
+      ctx.strokeStyle = (CATEGORIES[cat] && CATEGORIES[cat].color) || "#8c7af1";
       ctx.lineWidth = lineWidth;
-      ctx.lineCap = "round";
+      ctx.lineCap = entries.length === 1 ? "round" : "butt";
       ctx.stroke();
+
       start = end;
     });
 
@@ -196,8 +204,8 @@ function renderDonut(items) {
     if (legend) {
       legend.style.display = "flex";
       legend.innerHTML = entries.slice(0, 5).map(([c, v]) => {
-        const col = (CATEGORIES[c] && CATEGORIES[c].color) || "#9ba1b5";
-        return `<span class="legend-item"><i class="legend-dot" style="background:${col}"></i>${safe(c)} · ${Math.round((v / sum) * 100)}%</span>`;
+        const col = (CATEGORIES[c] && CATEGORIES[c].color) || "#8c7af1";
+        return `<span class="legend-item"><i class="legend-dot" style="background:${col}"></i>${safe(c)} · ${money(v)}</span>`;
       }).join("");
     }
   }
