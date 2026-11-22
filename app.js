@@ -106,7 +106,22 @@ function render() {
   $("totalSpent").textContent = money(all);
   $("monthSpent").textContent = money(spent);
   $("transactionCount").textContent = expenses.length;
-  $("dailyAverage").textContent = money(spent / Math.max(1, today.getDate()));
+
+  const activeDays = new Set(month.map(e => e.date)).size;
+  const dailyAvg = activeDays > 0 ? (spent / activeDays) : 0;
+  $("dailyAverage").textContent = money(dailyAvg);
+
+  const footEl = $("dailyAvgFoot");
+  if (footEl) {
+    if (activeDays === 0) {
+      footEl.innerHTML = '<span class="dot mint-dot"></span> Based on this month';
+    } else if (activeDays === 1) {
+      footEl.innerHTML = '<span class="dot mint-dot"></span> Across 1 active day';
+    } else {
+      footEl.innerHTML = `<span class="dot mint-dot"></span> Across ${activeDays} active days`;
+    }
+  }
+
   $("chartTotal").textContent = money(spent);
   $("budgetSpent").textContent = money(spent);
   $("budgetLimit").textContent = money(budget);
