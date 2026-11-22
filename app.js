@@ -142,11 +142,21 @@ function renderDonut(items) {
   if (!canvas) return;
   const ctx = canvas.getContext("2d");
   const dpr = window.devicePixelRatio || 1;
-  const size = 240;
+  const size = 210;
+  
+  // Set buffer size multiplied by DPR for ultra-sharp Retina rendering
   canvas.width = size * dpr;
   canvas.height = size * dpr;
+  // Explicitly constrain element style dimensions in CSS pixels to prevent DPR expansion
+  canvas.style.width = `${size}px`;
+  canvas.style.height = `${size}px`;
+  
   ctx.scale(dpr, dpr);
   ctx.clearRect(0, 0, size, size);
+
+  const center = size / 2;
+  const radius = 70;
+  const lineWidth = 22;
 
   const sums = {};
   items.forEach(e => { sums[e.category] = (sums[e.category] || 0) + Number(e.amount); });
@@ -157,11 +167,11 @@ function renderDonut(items) {
   const legend = $("categoryLegend");
 
   if (!sum) {
-    // Sleek dark circular track for empty state
+    // Sleek dark circular track for empty state exactly matching reference screenshot
     ctx.beginPath();
-    ctx.arc(120, 120, 80, 0, Math.PI * 2);
+    ctx.arc(center, center, radius, 0, Math.PI * 2);
     ctx.strokeStyle = "#23263b";
-    ctx.lineWidth = 24;
+    ctx.lineWidth = lineWidth;
     ctx.stroke();
 
     if (emptyHint) emptyHint.style.display = "block";
@@ -174,9 +184,9 @@ function renderDonut(items) {
     entries.forEach(([cat, val]) => {
       const end = start + (val / sum) * Math.PI * 2;
       ctx.beginPath();
-      ctx.arc(120, 120, 80, start, end);
+      ctx.arc(center, center, radius, start, end);
       ctx.strokeStyle = (CATEGORIES[cat] && CATEGORIES[cat].color) || "#9ba1b5";
-      ctx.lineWidth = 24;
+      ctx.lineWidth = lineWidth;
       ctx.lineCap = "round";
       ctx.stroke();
       start = end;
