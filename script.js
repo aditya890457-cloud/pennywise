@@ -295,9 +295,10 @@ function renderDonut(items) {
   const radius = 82;
   const lineWidth = 24;
 
+  const isDark = document.body.classList.contains("dark");
   ctx.beginPath();
   ctx.arc(center, center, radius, 0, Math.PI * 2);
-  ctx.strokeStyle = "#23263b";
+  ctx.strokeStyle = isDark ? "#23263b" : "#e2e8f0";
   ctx.lineWidth = lineWidth;
   ctx.stroke();
 

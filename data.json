@@ -1,4 +1,1 @@
-{
-  "budget": 10000.0,
-  "expenses": []
-}
+{"budget":10000.0,"expenses":[{"id":"1795852780709","title":"lunch","amount":100,"category":"Food","date":"2026-11-28","note":"acidic"}]}
