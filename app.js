@@ -1,7 +1,11 @@
 // ==========================================================================
-// Pennywise App Logic — app.js
-// Modern, Dark Midnight Navy Theme matching Reference Design
+// Pennywise App Logic — script.js
+// Modern, Dark Midnight Navy Theme with Java HTTP Backend Integration
+// Calls Java API at http://localhost:8080 with localStorage Fallback
 // ==========================================================================
+
+const API_BASE = "http://localhost:8080/api";
+let backendOnline = false;
 
 const CATEGORIES = {
   Food: { icon: "🍜", color: "#8b78ed" },
@@ -65,9 +69,89 @@ let budget = Number(localStorage.getItem("pennywise_budget") || 10000);
 let editingId = null;
 let toastTimer;
 
-function save() {
+function saveLocal() {
   localStorage.setItem("pennywise_expenses", JSON.stringify(expenses));
   localStorage.setItem("pennywise_budget", String(budget));
+}
+
+// =========================================================================
+// Backend API Integration
+// =========================================================================
+
+async function syncWithBackend() {
+  try {
+    const resExp = await fetch(`${API_BASE}/expenses`, { cache: "no-store" });
+    if (!resExp.ok) throw new Error("Backend not responding");
+    const serverExpenses = await resExp.json();
+
+    const resBudget = await fetch(`${API_BASE}/budget`, { cache: "no-store" });
+    let serverBudget = budget;
+    if (resBudget.ok) {
+      const bData = await resBudget.json();
+      if (typeof bData.budget === "number") serverBudget = bData.budget;
+    }
+
+    backendOnline = true;
+
+    // If server has data, sync from server to client
+    if (Array.isArray(serverExpenses) && serverExpenses.length > 0) {
+      expenses = serverExpenses;
+      budget = serverBudget;
+      saveLocal();
+    } else if (expenses.length > 0) {
+      // If server is empty but client has local data, push initial local data to server
+      await fetch(`${API_BASE}/expenses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(expenses)
+      });
+      await fetch(`${API_BASE}/budget`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ budget })
+      });
+    }
+
+    render();
+    console.log("Connected to Pennywise Java Backend at " + API_BASE);
+  } catch (err) {
+    backendOnline = false;
+    console.info("Java backend offline (http://localhost:8080). Running with localStorage.");
+  }
+}
+
+async function apiAddOrUpdate(item) {
+  try {
+    await fetch(`${API_BASE}/expenses`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(item)
+    });
+  } catch (err) {
+    console.warn("Could not sync expense to Java backend:", err);
+  }
+}
+
+async function apiDelete(id) {
+  try {
+    await fetch(`${API_BASE}/expenses?id=${encodeURIComponent(id)}`, {
+      method: "DELETE"
+    });
+  } catch (err) {
+    console.warn("Could not delete expense on Java backend:", err);
+  }
+}
+
+async function apiUpdateBudget(val) {
+  try {
+    await fetch(`${API_BASE}/budget`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ budget: val })
+    });
+  } catch (err) {
+    console.warn("Could not sync budget to Java backend:", err);
+  }
 }
 
 function showToast(message) {
@@ -110,7 +194,7 @@ function init() {
     }
     return e;
   });
-  if (migrated) save();
+  if (migrated) saveLocal();
 
   // Topbar and welcome dates
   const dayStr = today.toLocaleDateString("en-US", { weekday: "short", day: "numeric", month: "short" });
@@ -133,6 +217,9 @@ function init() {
   }
   
   render();
+
+  // Connect to Java backend
+  syncWithBackend();
 }
 
 function render() {
@@ -196,10 +283,8 @@ function renderDonut(items) {
   const dpr = window.devicePixelRatio || 1;
   const size = 236;
   
-  // Set buffer resolution multiplied by DPR for ultra-sharp Retina rendering
   canvas.width = size * dpr;
   canvas.height = size * dpr;
-  // Explicitly constrain element style dimensions in CSS pixels to prevent DPR expansion
   canvas.style.width = `${size}px`;
   canvas.style.height = `${size}px`;
   
@@ -210,7 +295,6 @@ function renderDonut(items) {
   const radius = 82;
   const lineWidth = 24;
 
-  // 1. Always draw the full 360-degree background ring track
   ctx.beginPath();
   ctx.arc(center, center, radius, 0, Math.PI * 2);
   ctx.strokeStyle = "#23263b";
@@ -232,7 +316,6 @@ function renderDonut(items) {
       legend.innerHTML = "";
     }
   } else {
-    // Fill the donut according to recorded expenses relative to monthly budget!
     const targetBudget = budget > 0 ? budget : sum;
     const fillFraction = Math.min(1, sum / targetBudget);
     const totalFilledAngle = fillFraction * Math.PI * 2;
@@ -383,7 +466,7 @@ $("emptyAdd").addEventListener("click", () => { resetExpenseForm(); openModal("e
 document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", () => closeModal(b.dataset.close)));
 document.querySelectorAll(".modal-backdrop").forEach(b => b.addEventListener("click", e => { if (e.target === b) closeModal(b.id); }));
 
-$("expenseForm").addEventListener("submit", e => {
+$("expenseForm").addEventListener("submit", async e => {
   e.preventDefault();
   const amount = Number($("expenseAmount").value);
   if (!Number.isFinite(amount) || amount <= 0) {
@@ -409,13 +492,16 @@ $("expenseForm").addEventListener("submit", e => {
     expenses.push(item);
     showToast("Expense added successfully.");
   }
-  save();
+  saveLocal();
   closeModal("expenseModal");
   resetExpenseForm();
   render();
+
+  // Sync to Java backend
+  await apiAddOrUpdate(item);
 });
 
-document.addEventListener("click", e => {
+document.addEventListener("click", async e => {
   const edit = e.target.closest("[data-edit]");
   const del = e.target.closest("[data-delete]");
   if (edit) {
@@ -436,9 +522,11 @@ document.addEventListener("click", e => {
     const item = expenses.find(x => x.id === del.dataset.delete);
     if (item && confirm(`Delete "${item.title}"?`)) {
       expenses = expenses.filter(x => x.id !== item.id);
-      save();
+      saveLocal();
       render();
       showToast("Expense deleted.");
+      // Sync deletion to Java backend
+      await apiDelete(item.id);
     }
   }
 });
@@ -454,7 +542,7 @@ document.addEventListener("click", e => {
 $("editBudget").addEventListener("click", () => openModal("budgetModal"));
 $("budgetNav").addEventListener("click", () => openModal("budgetModal"));
 
-$("budgetForm").addEventListener("submit", e => {
+$("budgetForm").addEventListener("submit", async e => {
   e.preventDefault();
   const v = Number($("budgetInput").value);
   if (v <= 0) {
@@ -462,10 +550,13 @@ $("budgetForm").addEventListener("submit", e => {
     return;
   }
   budget = v;
-  save();
+  saveLocal();
   render();
   closeModal("budgetModal");
   showToast("Monthly budget updated.");
+
+  // Sync to Java backend
+  await apiUpdateBudget(v);
 });
 
 $("exportCsv").addEventListener("click", () => {
